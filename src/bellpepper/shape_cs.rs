@@ -65,9 +65,37 @@ impl<G: Group> ConstraintSystem<G::Scalar> for ShapeCS<G> {
     Ok(Variable::new_unchecked(Index::Aux(self.aux - 1)))
   }
 
+  fn alloc_strict<A, AR>(
+    &mut self,
+    _annotation: A,
+    _f: G::Scalar,
+  ) -> Result<Variable, SynthesisError>
+  where
+    A: FnOnce() -> AR,
+    AR: Into<String>,
+  {
+    self.aux += 1;
+
+    Ok(Variable::new_unchecked(Index::Aux(self.aux - 1)))
+  }
+
   fn alloc_input<F, A, AR>(&mut self, _annotation: A, _f: F) -> Result<Variable, SynthesisError>
   where
     F: FnOnce() -> Result<G::Scalar, SynthesisError>,
+    A: FnOnce() -> AR,
+    AR: Into<String>,
+  {
+    self.inputs += 1;
+
+    Ok(Variable::new_unchecked(Index::Input(self.inputs - 1)))
+  }
+
+  fn alloc_input_strict<A, AR>(
+    &mut self,
+    _annotation: A,
+    _f: G::Scalar,
+  ) -> Result<Variable, SynthesisError>
+  where
     A: FnOnce() -> AR,
     AR: Into<String>,
   {

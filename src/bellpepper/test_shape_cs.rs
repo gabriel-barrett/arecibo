@@ -251,9 +251,39 @@ where
     Ok(Variable::new_unchecked(Index::Aux(self.aux.len() - 1)))
   }
 
+  fn alloc_strict<A, AR>(
+    &mut self,
+    annotation: A,
+    _f: G::Scalar,
+  ) -> Result<Variable, SynthesisError>
+  where
+    A: FnOnce() -> AR,
+    AR: Into<String>,
+  {
+    let path = compute_path(&self.current_namespace, &annotation().into());
+    self.aux.push(path);
+
+    Ok(Variable::new_unchecked(Index::Aux(self.aux.len() - 1)))
+  }
+
   fn alloc_input<F, A, AR>(&mut self, annotation: A, _f: F) -> Result<Variable, SynthesisError>
   where
     F: FnOnce() -> Result<G::Scalar, SynthesisError>,
+    A: FnOnce() -> AR,
+    AR: Into<String>,
+  {
+    let path = compute_path(&self.current_namespace, &annotation().into());
+    self.inputs.push(path);
+
+    Ok(Variable::new_unchecked(Index::Input(self.inputs.len() - 1)))
+  }
+
+  fn alloc_input_strict<A, AR>(
+    &mut self,
+    annotation: A,
+    _f: G::Scalar,
+  ) -> Result<Variable, SynthesisError>
+  where
     A: FnOnce() -> AR,
     AR: Into<String>,
   {
